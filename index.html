@@ -65,6 +65,8 @@
         #start-screen h1, #game-over-screen h1 { margin-bottom: 8px; font-size: 42px; }
         #start-screen p, #game-over-screen p { line-height: 1.5; color: #b8c4d6; }
         .difficulty-options { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:24px 0 14px; }
+        .mode-options { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:10px 0 14px; }
+        .mode-heading { margin-top:18px; color:#91a4bc; font-size:12px; font-weight:900; letter-spacing:.12em; text-transform:uppercase; }
         .difficulty-button {
             padding:14px 8px; border:1px solid #334155; border-radius:11px;
             background:linear-gradient(#17202c,#101620); color:#e2e8f0; cursor:pointer; font-weight:800;
@@ -72,6 +74,9 @@
         }
         .difficulty-button:hover { transform:translateY(-2px); border-color:#60a5fa; box-shadow:0 8px 20px rgba(2,132,199,.16); }
         .difficulty-button.selected { color:#06121d; background:linear-gradient(135deg,#e0f2fe,#38bdf8); border-color:#7dd3fc; box-shadow:0 0 24px rgba(56,189,248,.28); }
+        .mode-button { padding:12px 10px; border:1px solid #334155; border-radius:11px; background:linear-gradient(#171b24,#10131a); color:#dbe7f5; cursor:pointer; font-weight:850; transition:.18s ease; }
+        .mode-button:hover { transform:translateY(-2px); border-color:#fb7185; box-shadow:0 8px 20px rgba(225,29,72,.14); }
+        .mode-button.selected { color:#fff1f2; background:linear-gradient(135deg,#4c0519,#be123c); border-color:#fb7185; box-shadow:0 0 24px rgba(244,63,94,.24); }
         #difficulty-description { min-height:44px; margin:12px 0 20px; color:#9fb0c5; }
         .primary-button,.secondary-button { border-radius:10px; cursor:pointer; font-weight:850; transition:.18s ease; }
         .primary-button { padding:13px 28px; color:#07111a; border:1px solid #7dd3fc; background:linear-gradient(135deg,#bae6fd,#38bdf8); font-size:18px; box-shadow:0 8px 26px rgba(14,165,233,.25); }
@@ -152,6 +157,14 @@
             content:""; position:absolute; inset:0; z-index:6; pointer-events:none; border-radius:inherit;
             background:rgba(69,10,10,.28);
         }
+        .slot.dead-zone { cursor:default; border-color:rgba(248,113,113,.86); background:#07080b; box-shadow:inset 0 0 18px rgba(0,0,0,.8),0 0 16px rgba(239,68,68,.15); }
+        .slot.dead-zone:hover { transform:none; filter:none; }
+        .dead-zone-art { width:100%; height:100%; object-fit:cover; display:block; border-radius:calc(var(--card-radius) - 1px); pointer-events:none; user-select:none; image-rendering:pixelated; image-rendering:crisp-edges; }
+        .slot.board-reveal { animation:boardReveal .28s cubic-bezier(.2,.9,.25,1.2) both; animation-delay:var(--reveal-delay,0ms); }
+        .slot.dead-zone-spawn { animation:deadZoneSpawn .42s cubic-bezier(.15,.9,.25,1.25) both; animation-delay:var(--spawn-delay,0ms); }
+        #board.generating { pointer-events:none; }
+        #board.generating .slot { opacity:.28; }
+        #board-generation-message { min-height:22px; color:#fda4af; font-weight:900; letter-spacing:.06em; }
         .slot.removal-choice { cursor:pointer; border-color:#fbbf24; box-shadow:0 0 0 2px rgba(251,191,36,.75),0 0 25px rgba(245,158,11,.5); animation:removalPulse 1s ease-in-out infinite; }
         .slot.recent-placement .card-art { animation:cardLand .42s cubic-bezier(.2,.9,.25,1.35); }
         .slot.capture-flash { animation:captureFlash .62s ease-out; }
@@ -212,6 +225,8 @@
         .play-flyer .card-art,.play-flyer .card-back-art { width:100%; height:100%; object-fit:cover; display:block; }
         .slot.play-target { box-shadow:0 0 0 2px rgba(125,211,252,.8),0 0 30px rgba(56,189,248,.52),inset 0 0 18px rgba(56,189,248,.16); }
         .draw-arrival { animation:drawArrival .5s cubic-bezier(.2,.9,.25,1.35); }
+        @keyframes boardReveal { 0%{opacity:0;transform:scale(.72) translateY(8px)} 100%{opacity:1;transform:none} }
+        @keyframes deadZoneSpawn { 0%{opacity:0;transform:scale(.35) rotate(-8deg);filter:brightness(2)} 70%{opacity:1;transform:scale(1.09) rotate(2deg)} 100%{opacity:1;transform:none;filter:none} }
         @keyframes drawArrival { 0%{transform:scale(.72);filter:brightness(1.8)} 65%{transform:scale(1.12)} 100%{transform:none;filter:none} }
         #deck-counter,#ai-hand-counter { margin:10px; }
         #ai-hand-count,#deck-count { color:#7dd3fc; text-shadow:0 0 12px rgba(56,189,248,.35); }
@@ -317,6 +332,11 @@
             <button class="difficulty-button" data-difficulty="hard">Hard</button>
         </div>
         <div id="difficulty-description">The AI pursues captures and useful board positions, but does not fully anticipate your reply.</div>
+        <div class="mode-heading">Game Mode</div>
+        <div class="mode-options" aria-label="Select game mode">
+            <button class="mode-button selected" data-mode="classic">Classic</button>
+            <button class="mode-button" data-mode="dead-zones">Dead Zones</button>
+        </div>
         <button id="start-button" class="primary-button">Start Game</button>
     </section>
 
@@ -357,6 +377,7 @@
         </div>
         <div id="turn-indicator">Current Turn: Player 1</div>
         <div id="action-message" aria-live="polite"></div>
+        <div id="board-generation-message" aria-live="polite"></div>
         <div class="game-workspace">
             <section class="board-panel">
                 <div id="ai-hand" class="hand-zone" aria-label="AI hand">
@@ -406,9 +427,10 @@
             Triangle: './Diamond.jpg'
         };
         const CARD_BACK_ART = './Back.jpg';
+        const DEAD_ZONE_ART = './DeadZone.jpg';
 
         // Preload the small pixel-art assets so animations do not flash.
-        [...Object.values(CARD_ART), CARD_BACK_ART].forEach(src => {
+        [...Object.values(CARD_ART), CARD_BACK_ART, DEAD_ZONE_ART].forEach(src => {
             const image = new Image();
             image.src = src;
         });
@@ -422,6 +444,9 @@
         let remainingDeck = [];
         let selectedCardIndex = null;
         let difficulty = 'medium';
+        let gameMode = 'classic';
+        let boardGenerating = false;
+        let generationToken = 0;
         let gameActive = false;
         let aiTimer = null;
         let turnToken = 0;
@@ -443,12 +468,42 @@
 
         function createEmptyBoard() {
             return Array.from({ length: ROWS }, () =>
-                Array.from({ length: COLS }, () => ({ card: null, stack: 0 }))
+                Array.from({ length: COLS }, () => ({ card: null, stack: 0, type: 'normal' }))
             );
         }
 
         function cloneBoard(source) {
             return source.map(row => row.map(cell => ({ ...cell })));
+        }
+
+        function isDeadZone(testBoard, row, col) {
+            return inBounds(row, col) && testBoard[row][col].type === 'dead-zone';
+        }
+
+        function clearCell(testBoard, row, col) {
+            const type = testBoard[row][col].type || 'normal';
+            testBoard[row][col] = { card: null, stack: 0, type };
+        }
+
+        function generateDeadZones(testBoard) {
+            const count = 3 + Math.floor(Math.random() * 3);
+            const candidates = [];
+            for (let row = 1; row < ROWS - 1; row++) {
+                for (let col = 1; col < COLS - 1; col++) {
+                    if (row === 2 && col === 3) continue;
+                    candidates.push({ row, col });
+                }
+            }
+            shuffle(candidates);
+            const chosen = [];
+            for (const candidate of candidates) {
+                if (chosen.length >= count) break;
+                const adjacent = chosen.some(zone => Math.abs(zone.row - candidate.row) + Math.abs(zone.col - candidate.col) === 1);
+                if (adjacent) continue;
+                chosen.push(candidate);
+                testBoard[candidate.row][candidate.col].type = 'dead-zone';
+            }
+            return chosen;
         }
 
         function shuffle(array) {
@@ -463,7 +518,7 @@
             const shuffled = shuffle([...deck]);
             p1Hand = shuffled.splice(0, 5);
             p2Hand = shuffled.splice(0, 5);
-            board[2][3] = { card: shuffled.shift(), stack: 1 };
+            board[2][3] = { card: shuffled.shift(), stack: 1, type: 'normal' };
             return shuffled;
         }
 
@@ -472,24 +527,25 @@
         }
 
         function isSealedEmptyCellOn(testBoard, row, col) {
-            if (testBoard[row][col].card !== null) return false;
+            if (isDeadZone(testBoard, row, col) || testBoard[row][col].card !== null) return false;
 
             const neighbors = CARDINAL_DIRS
                 .map(([dr, dc]) => [row + dr, col + dc])
-                .filter(([r, c]) => inBounds(r, c));
+                .filter(([r, c]) => inBounds(r, c) && !isDeadZone(testBoard, r, c));
 
-            if (neighbors.length !== getRequiredNeighbors(row, col)) return false;
+            if (neighbors.length !== getRequiredNeighbors(testBoard, row, col)) return false;
             const cards = neighbors.map(([r, c]) => testBoard[r][c].card);
             return cards.every(card => card !== null) && new Set(cards).size === 1;
         }
 
         function isValidMoveOn(testBoard, row, col) {
+            if (isDeadZone(testBoard, row, col)) return false;
             if (testBoard[row][col].card !== null) return true;
             if (isSealedEmptyCellOn(testBoard, row, col)) return false;
             return ALL_DIRS.some(([dr, dc]) => {
                 const r = row + dr;
                 const c = col + dc;
-                return inBounds(r, c) && testBoard[r][c].card !== null;
+                return inBounds(r, c) && !isDeadZone(testBoard, r, c) && testBoard[r][c].card !== null;
             });
         }
 
@@ -497,10 +553,12 @@
             return isValidMoveOn(board, row, col);
         }
 
-        function getRequiredNeighbors(row, col) {
-            const corner = (row === 0 || row === ROWS - 1) && (col === 0 || col === COLS - 1);
-            const edge = row === 0 || row === ROWS - 1 || col === 0 || col === COLS - 1;
-            return corner ? 2 : edge ? 3 : 4;
+        function getRequiredNeighbors(testBoard, row, col) {
+            return CARDINAL_DIRS.reduce((count, [dr, dc]) => {
+                const r = row + dr;
+                const c = col + dc;
+                return count + (inBounds(r, c) && !isDeadZone(testBoard, r, c) ? 1 : 0);
+            }, 0);
         }
 
         function getCapturedCells(testBoard, playedRow, playedCol) {
@@ -511,7 +569,7 @@
             CARDINAL_DIRS.forEach(([dr, dc]) => {
                 const row = playedRow + dr;
                 const col = playedCol + dc;
-                if (inBounds(row, col)) positions.push([row, col]);
+                if (inBounds(row, col) && !isDeadZone(testBoard, row, col)) positions.push([row, col]);
             });
 
             const captured = [];
@@ -525,12 +583,12 @@
                 CARDINAL_DIRS.forEach(([dr, dc]) => {
                     const r = row + dr;
                     const c = col + dc;
-                    if (inBounds(r, c) && testBoard[r][c].card !== null) {
+                    if (inBounds(r, c) && !isDeadZone(testBoard, r, c) && testBoard[r][c].card !== null) {
                         surrounding.push(testBoard[r][c].card);
                     }
                 });
 
-                if (surrounding.length === getRequiredNeighbors(row, col) && new Set(surrounding).size === 1) {
+                if (surrounding.length === getRequiredNeighbors(testBoard, row, col) && new Set(surrounding).size === 1) {
                     captured.push({
                         row,
                         col,
@@ -547,7 +605,7 @@
             return CARDINAL_DIRS.map(([dr, dc]) => ({
                 row: capture.row + dr,
                 col: capture.col + dc
-            })).filter(({ row, col }) => inBounds(row, col) && testBoard[row][col].card !== null);
+            })).filter(({ row, col }) => inBounds(row, col) && !isDeadZone(testBoard, row, col) && testBoard[row][col].card !== null);
         }
 
         function chooseSimulatedRemoval(testBoard, capture) {
@@ -566,11 +624,11 @@
             simulated[row][col].stack += 1;
             const captures = getCapturedCells(simulated, row, col);
             captures.forEach(({ row: r, col: c }) => {
-                simulated[r][c] = { card: null, stack: 0 };
+                clearCell(simulated, r, c);
             });
             captures.forEach(capture => {
                 const removal = chooseSimulatedRemoval(simulated, capture);
-                if (removal) simulated[removal.row][removal.col] = { card: null, stack: 0 };
+                if (removal) clearCell(simulated, removal.row, removal.col);
             });
             return {
                 board: simulated,
@@ -605,7 +663,7 @@
             });
 
             captures.forEach(({ row: r, col: c }) => {
-                board[r][c] = { card: null, stack: 0 };
+                clearCell(board, r, c);
             });
 
             pendingRemovalQueue = captures.map(capture => ({ ...capture }));
@@ -646,7 +704,7 @@
             const removedStack = board[row][col].stack;
             recentRemovedCell = `${row},${col}`;
             setTimeout(() => { recentRemovedCell = null; if (gameActive) renderBoard(); }, 650);
-            board[row][col] = { card: null, stack: 0 };
+            clearCell(board, row, col);
             recordRemoval(1, removedCard, row, col, removedStack);
             beginNextRemoval();
             return true;
@@ -657,7 +715,7 @@
             const choice = activeRemoval.options.reduce((best, option) => {
                 const cell = board[option.row][option.col];
                 const simulated = cloneBoard(board);
-                simulated[option.row][option.col] = { card: null, stack: 0 };
+                clearCell(simulated, option.row, option.col);
                 const replyThreat = difficulty === 'hard' ? bestImmediateReplyScore(simulated, p1Hand) : 0;
                 const score = cell.stack * 4 + replyThreat;
                 return !best || score < best.score ? { ...option, score } : best;
@@ -667,7 +725,7 @@
                 const removedStack = board[choice.row][choice.col].stack;
                 recentRemovedCell = `${choice.row},${choice.col}`;
                 setTimeout(() => { recentRemovedCell = null; if (gameActive) renderBoard(); }, 650);
-                board[choice.row][choice.col] = { card: null, stack: 0 };
+                clearCell(board, choice.row, choice.col);
                 recordRemoval(2, removedCard, choice.row, choice.col, removedStack);
             }
             beginNextRemoval();
@@ -974,16 +1032,16 @@
             CARDINAL_DIRS.forEach(([dr, dc]) => {
                 const targetRow = row + dr;
                 const targetCol = col + dc;
-                if (!inBounds(targetRow, targetCol) || testBoard[targetRow][targetCol].card === null) return;
+                if (!inBounds(targetRow, targetCol) || isDeadZone(testBoard, targetRow, targetCol) || testBoard[targetRow][targetCol].card === null) return;
 
                 const neighbors = [];
                 CARDINAL_DIRS.forEach(([ndr, ndc]) => {
                     const r = targetRow + ndr;
                     const c = targetCol + ndc;
-                    if (inBounds(r, c) && testBoard[r][c].card !== null) neighbors.push(testBoard[r][c].card);
+                    if (inBounds(r, c) && !isDeadZone(testBoard, r, c) && testBoard[r][c].card !== null) neighbors.push(testBoard[r][c].card);
                 });
                 const matching = neighbors.filter(shape => shape === card).length;
-                const required = getRequiredNeighbors(targetRow, targetCol);
+                const required = getRequiredNeighbors(testBoard, targetRow, targetCol);
                 if (matching === required - 1) value += testBoard[targetRow][targetCol].stack * 1.5;
                 else value += matching * 0.25;
             });
@@ -1046,7 +1104,8 @@
             for (let row = 0; row < ROWS; row++) {
                 for (let col = 0; col < COLS; col++) {
                     const slot = document.createElement('div');
-                    const isRemovalChoice = activeRemoval && pendingTurnPlayer === 1 &&
+                    const deadZone = isDeadZone(board, row, col);
+                    const isRemovalChoice = !deadZone && activeRemoval && pendingTurnPlayer === 1 &&
                         activeRemoval.options.some(option => option.row === row && option.col === col);
                     const key = `${row},${col}`;
                     const showingPlacementHints = selectedCardIndex !== null && currentPlayer === 1 && gameActive && !activeRemoval && !moveInProgress;
@@ -1054,6 +1113,7 @@
                         ? (isValidMove(row, col) ? 'valid-placement' : 'invalid-placement')
                         : '';
                     const stateClasses = [
+                        deadZone ? 'dead-zone' : '',
                         isRemovalChoice ? 'removal-choice' : (currentPlayer !== 1 || !gameActive || activeRemoval ? 'disabled' : ''),
                         placementClass,
                         recentPlacedCell === key ? 'recent-placement' : '',
@@ -1063,19 +1123,21 @@
                     slot.className = `slot ${stateClasses}`.trim();
                     slot.dataset.row = row;
                     slot.dataset.col = col;
-                    slot.innerHTML = renderCard(board[row][col].card);
+                    slot.innerHTML = deadZone ? `<img class="dead-zone-art" src="${DEAD_ZONE_ART}" alt="">` : renderCard(board[row][col].card);
                     const label = document.createElement('div');
                     label.className = 'tile-label';
-                    label.textContent = tileName(row, col);
+                    label.textContent = deadZone ? 'X' : tileName(row, col);
                     slot.appendChild(label);
-                    slot.setAttribute('aria-label', `${tileName(row, col)}${board[row][col].card ? `: ${board[row][col].card}, stack ${board[row][col].stack}` : ': empty'}`);
-                    if (board[row][col].stack > 1) {
+                    slot.setAttribute('aria-label', deadZone ? `${tileName(row, col)}: dead zone, unplayable` : `${tileName(row, col)}${board[row][col].card ? `: ${board[row][col].card}, stack ${board[row][col].stack}` : ': empty'}`);
+                    if (!deadZone && board[row][col].stack > 1) {
                         const count = document.createElement('div');
                         count.className = 'stack-count';
                         count.textContent = `×${board[row][col].stack}`;
                         slot.appendChild(count);
                     }
-                    if (isRemovalChoice) {
+                    if (deadZone) {
+                        // Dead zones are intentionally inert and behave like the edge of the board.
+                    } else if (isRemovalChoice) {
                         slot.addEventListener('click', () => chooseRemoval(row, col));
                     } else if (currentPlayer === 1 && gameActive && !activeRemoval && (!showingPlacementHints || isValidMove(row, col))) {
                         slot.addEventListener('click', () => placeCard(row, col));
@@ -1083,6 +1145,42 @@
                     boardDiv.appendChild(slot);
                 }
             }
+        }
+
+        async function animateBoardGeneration(deadZones) {
+            const token = ++generationToken;
+            boardGenerating = true;
+            gameActive = false;
+            const boardDiv = document.getElementById('board');
+            const message = document.getElementById('board-generation-message');
+            message.textContent = 'Generating board…';
+            renderBoard();
+            boardDiv.classList.add('generating');
+            const slots = [...boardDiv.querySelectorAll('.slot')];
+            slots.forEach((slot, index) => {
+                slot.classList.add('board-reveal');
+                slot.style.setProperty('--reveal-delay', `${index * 18}ms`);
+            });
+            await new Promise(resolve => setTimeout(resolve, 760));
+            if (token !== generationToken) return;
+            boardDiv.classList.remove('generating');
+            if (deadZones.length > 0) {
+                message.textContent = 'Forming dead zones…';
+                deadZones.forEach((zone, index) => {
+                    const slot = boardDiv.querySelector(`.slot[data-row="${zone.row}"][data-col="${zone.col}"]`);
+                    if (slot) {
+                        slot.classList.remove('board-reveal');
+                        slot.classList.add('dead-zone-spawn');
+                        slot.style.setProperty('--spawn-delay', `${index * 130}ms`);
+                    }
+                });
+                await new Promise(resolve => setTimeout(resolve, 520 + deadZones.length * 130));
+                if (token !== generationToken) return;
+            }
+            message.textContent = '';
+            boardGenerating = false;
+            gameActive = true;
+            refreshUI();
         }
 
         function updateHands() {
@@ -1133,6 +1231,12 @@
         function updateTurnIndicator() {
             const turn = document.getElementById('turn-indicator');
             const action = document.getElementById('action-message');
+
+            if (boardGenerating) {
+                turn.textContent = 'Generating Board';
+                action.textContent = gameMode === 'dead-zones' ? 'Preparing a new battlefield…' : 'Preparing the board…';
+                return;
+            }
 
             if (!gameActive && gameOverAnnounced) {
                 const winner = p1Score > p2Score ? 'Player 1 wins!' : p2Score > p1Score ? 'AI wins!' : 'The game is a tie.';
@@ -1222,9 +1326,11 @@
             document.getElementById('game-over-screen').style.display = 'block';
         }
 
-        function startGame() {
+        async function startGame() {
             if (aiTimer) clearTimeout(aiTimer);
             turnToken++;
+            generationToken++;
+            boardGenerating = false;
             moveInProgress = false;
             pendingRemovalQueue = [];
             activeRemoval = null;
@@ -1236,24 +1342,29 @@
             p2Score = 0;
             currentPlayer = 1;
             selectedCardIndex = null;
-            gameActive = true;
+            gameActive = false;
             gameOverAnnounced = false;
             moveHistory = [];
             recentPlacedCell = null;
             recentCapturedCells = new Set();
             recentRemovedCell = null;
+            const generatedDeadZones = gameMode === 'dead-zones' ? generateDeadZones(board) : [];
             remainingDeck = dealCards();
 
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('game-over-screen').style.display = 'none';
             document.getElementById('game').style.display = 'block';
-            document.getElementById('difficulty-label').textContent = `Difficulty: ${difficulty[0].toUpperCase() + difficulty.slice(1)}`;
+            const modeLabel = gameMode === 'dead-zones' ? ' · Dead Zones' : ' · Classic';
+            document.getElementById('difficulty-label').textContent = `Difficulty: ${difficulty[0].toUpperCase() + difficulty.slice(1)}${modeLabel}`;
             refreshUI();
+            await animateBoardGeneration(generatedDeadZones);
         }
 
         function showStartScreen() {
             if (aiTimer) clearTimeout(aiTimer);
             turnToken++;
+            generationToken++;
+            boardGenerating = false;
             moveInProgress = false;
             pendingRemovalQueue = [];
             activeRemoval = null;
@@ -1271,6 +1382,13 @@
                 document.querySelectorAll('.difficulty-button').forEach(item => item.classList.remove('selected'));
                 button.classList.add('selected');
                 document.getElementById('difficulty-description').textContent = difficultyDescriptions[difficulty];
+            });
+        });
+        document.querySelectorAll('.mode-button').forEach(button => {
+            button.addEventListener('click', () => {
+                gameMode = button.dataset.mode;
+                document.querySelectorAll('.mode-button').forEach(item => item.classList.remove('selected'));
+                button.classList.add('selected');
             });
         });
         document.getElementById('start-button').addEventListener('click', startGame);

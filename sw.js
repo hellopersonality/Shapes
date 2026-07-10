@@ -1,4 +1,4 @@
-const CACHE_NAME = 'shapes-v7';
+const CACHE_NAME = 'shapes-v8';
 const APP_SHELL = [
   './',
   './index.html',
@@ -8,7 +8,8 @@ const APP_SHELL = [
   './Circle.jpg',
   './Square.jpg',
   './Diamond.jpg',
-  './Back.jpg'
+  './Back.jpg',
+  './DeadZone.jpg'
 ];
 
 self.addEventListener('install', event => {
