@@ -1,10 +1,14 @@
-const CACHE_NAME = 'shapes-v6';
+const CACHE_NAME = 'shapes-v7';
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
   './icon-180.png',
-  './icon-512.png'
+  './icon-512.png',
+  './Circle.jpg',
+  './Square.jpg',
+  './Diamond.jpg',
+  './Back.jpg'
 ];
 
 self.addEventListener('install', event => {
