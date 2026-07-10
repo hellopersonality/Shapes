@@ -2,7 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+    <meta name="theme-color" content="#05070b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Shape Siege">
+    <link rel="apple-touch-icon" href="icon-180.png">
+    <link rel="manifest" href="manifest.webmanifest">
     <title>Shape Siege</title>
     <style>
         :root {
@@ -192,6 +198,68 @@
             .stack-count{top:2px;right:2px;min-width:19px;height:17px;font-size:9px;padding:0 3px}
             .card-option{width:54px;height:74px}.difficulty-options{grid-template-columns:1fr}.hand{min-height:85px}
         }
+
+        /* iPhone portrait layout */
+        @media (max-width:500px) {
+            html,body { min-height:100%; background:#05070b; overscroll-behavior:none; }
+            body {
+                margin:0; padding:max(4px,env(safe-area-inset-top)) max(4px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(4px,env(safe-area-inset-left));
+                overflow-x:hidden; -webkit-tap-highlight-color:transparent; touch-action:manipulation;
+            }
+            #start-screen,#game { width:100%; max-width:none; min-height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 8px); box-sizing:border-box; border-radius:16px; padding:10px 6px 14px; }
+            #start-screen { display:flex; flex-direction:column; justify-content:center; }
+            #start-screen h1 { font-size:30px; margin-bottom:8px; }
+            #start-screen p { font-size:14px; line-height:1.45; margin:0 auto 18px; }
+            .difficulty-options { gap:8px; }
+            .difficulty-button,.primary-button,.secondary-button { min-height:44px; }
+            .game-header { align-items:center; padding:0 4px; margin-bottom:2px; }
+            .game-header h1 { font-size:21px; margin:0; }
+            #difficulty-label { font-size:11px; }
+            #new-game-button { min-height:38px; padding:8px 11px; font-size:12px; }
+            #turn-indicator { margin:5px 0 2px; font-size:14px; }
+            #action-message { min-height:17px; margin-bottom:2px; font-size:12px; }
+            .game-workspace { display:block; }
+            .board-panel { min-width:0; width:100%; padding:0; }
+            .hand-zone { margin:3px auto 5px; width:100%; overflow:hidden; }
+            .hand-label { font-size:10px; margin-bottom:3px; }
+            #ai-hand { min-height:61px; }
+            #ai-hand > span { min-height:54px; gap:2px; flex-wrap:nowrap; overflow-x:auto; justify-content:center; padding:0 4px 3px; scrollbar-width:none; }
+            #ai-hand > span::-webkit-scrollbar,.hand > span::-webkit-scrollbar { display:none; }
+            .ai-card-back { width:37px; height:50px; border-radius:5px; flex:0 0 auto; margin-left:-4px; }
+            .ai-card-back:first-child { margin-left:0; }
+            .table-zone { display:flex; flex-direction:column; gap:4px; width:100%; margin:0 auto; align-items:center; }
+            #deck-area { order:2; flex-direction:row; gap:7px; height:41px; margin-top:1px; }
+            .deck-title { font-size:9px; }
+            #deck-pile { width:27px; height:37px; }
+            .deck-layer { border-radius:4px; }
+            .deck-badge { font-size:10px; min-width:23px; padding:2px 6px; }
+            #board { order:1; gap:2px; margin:0 auto; }
+            :root { --card-w:40px; --card-h:55px; --card-radius:5px; }
+            .slot { border-width:1px; }
+            .tile-label { font-size:6px; top:1px; left:1px; padding:1px 2px; min-width:14px; border-radius:3px; }
+            .stack-count { top:1px; right:1px; min-width:17px; height:15px; font-size:8px; padding:0 2px; }
+            #player1-hand { margin:4px 0 2px; min-height:75px; }
+            #player1-hand > span { display:flex; flex-wrap:nowrap; overflow-x:auto; justify-content:flex-start; width:100%; padding:7px 8px 10px; box-sizing:border-box; gap:6px; scroll-snap-type:x proximity; scrollbar-width:none; }
+            .card-option { width:47px; height:64px; flex:0 0 auto; border-radius:6px; scroll-snap-align:center; }
+            .card-option:hover { transform:none; }
+            .card-option.selected { transform:translateY(-5px) scale(1.04); }
+            #scores { gap:16px; margin:3px 0; font-size:12px; }
+            #deck-counter,#ai-hand-counter { margin:3px; font-size:12px; }
+            #move-log-panel { margin-top:7px; border-radius:10px; }
+            #move-log-panel h2 { padding:8px 11px; font-size:14px; }
+            #move-log { height:135px; padding:5px 8px 6px 29px; font-size:11px; line-height:1.35; }
+            #move-log li { padding:4px 2px; }
+            #move-log-empty { padding:10px; font-size:11px; }
+            .draw-flyer,.play-flyer { border-radius:6px; }
+        }
+        @media (max-width:360px) {
+            :root { --card-w:37px; --card-h:50px; }
+            #board { gap:2px; }
+            .card-option { width:43px; height:59px; }
+            .ai-card-back { width:34px; height:46px; }
+            #move-log { height:112px; }
+        }
+
         @media (prefers-reduced-motion:reduce) { *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important} }
     </style>
 </head>
@@ -1078,6 +1146,11 @@ AI: ${p2Score}`), 50);
         });
         document.getElementById('start-button').addEventListener('click', startGame);
         document.getElementById('new-game-button').addEventListener('click', showStartScreen);
+    </script>
+    <script>
+        if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+            window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+        }
     </script>
 </body>
 </html>
