@@ -45,9 +45,9 @@
             mask-image: linear-gradient(to bottom, black, transparent 72%);
         }
         button { font: inherit; }
-        #start-screen { width: min(94vw, 620px); }
+        #start-screen, #game-over-screen { width: min(94vw, 620px); }
         #game { width: min(97vw, 1080px); }
-        #start-screen, #game {
+        #start-screen, #game-over-screen, #game {
             position: relative;
             padding: 28px;
             text-align: center;
@@ -57,13 +57,13 @@
             box-shadow: 0 24px 70px rgba(0,0,0,.72), inset 0 1px rgba(255,255,255,.05), 0 0 50px rgba(14,165,233,.07);
             backdrop-filter: blur(14px);
         }
-        #start-screen h1, .game-header h1 {
+        #start-screen h1, #game-over-screen h1, .game-header h1 {
             margin: 0;
             letter-spacing: -.04em;
             text-shadow: 0 0 24px rgba(56,189,248,.28);
         }
-        #start-screen h1 { margin-bottom: 8px; font-size: 42px; }
-        #start-screen p { line-height: 1.5; color: #b8c4d6; }
+        #start-screen h1, #game-over-screen h1 { margin-bottom: 8px; font-size: 42px; }
+        #start-screen p, #game-over-screen p { line-height: 1.5; color: #b8c4d6; }
         .difficulty-options { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:24px 0 14px; }
         .difficulty-button {
             padding:14px 8px; border:1px solid #334155; border-radius:11px;
@@ -77,7 +77,17 @@
         .primary-button { padding:13px 28px; color:#07111a; border:1px solid #7dd3fc; background:linear-gradient(135deg,#bae6fd,#38bdf8); font-size:18px; box-shadow:0 8px 26px rgba(14,165,233,.25); }
         .primary-button:hover,.secondary-button:hover { transform:translateY(-2px); filter:brightness(1.12); }
         .secondary-button { padding:9px 14px; background:#17202c; color:#f8fafc; border:1px solid #344256; }
-        #game { display:none; }
+        #game, #game-over-screen { display:none; }
+        #game-over-screen { text-align:center; }
+        .game-over-kicker { color:#7dd3fc; font-size:13px; font-weight:900; letter-spacing:.16em; text-transform:uppercase; }
+        #game-over-result { margin:6px 0 22px; font-size:24px; font-weight:900; color:#f8fafc; }
+        .final-score-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin:0 auto 24px; max-width:360px; }
+        .final-score-card { padding:16px 12px; border:1px solid #344256; border-radius:14px; background:linear-gradient(180deg,rgba(24,33,46,.98),rgba(8,12,19,.98)); box-shadow:inset 0 1px rgba(255,255,255,.05),0 8px 24px rgba(0,0,0,.3); }
+        .final-score-card.winner { border-color:#fbbf24; box-shadow:0 0 28px rgba(251,191,36,.18),inset 0 1px rgba(255,255,255,.06); }
+        .final-score-label { display:block; margin-bottom:4px; color:#a8b5c7; font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; }
+        .final-score-number { display:block; font-size:42px; line-height:1; color:#7dd3fc; text-shadow:0 0 20px rgba(56,189,248,.28); }
+        .final-score-card.winner .final-score-number { color:#fbbf24; text-shadow:0 0 22px rgba(251,191,36,.3); }
+        #next-button { min-width:150px; }
         .game-header { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; gap:12px; }
         .game-title-block { text-align:left; justify-self:start; }
         .game-header h1 { font-size:30px; }
@@ -236,10 +246,10 @@
                 margin:0; padding:max(4px,env(safe-area-inset-top)) max(4px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(4px,env(safe-area-inset-left));
                 overflow-x:hidden; -webkit-tap-highlight-color:transparent; touch-action:manipulation;
             }
-            #start-screen,#game { width:100%; max-width:none; min-height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 8px); box-sizing:border-box; border-radius:16px; padding:10px 6px 14px; }
+            #start-screen,#game-over-screen,#game { width:100%; max-width:none; min-height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 8px); box-sizing:border-box; border-radius:16px; padding:10px 6px 14px; }
             #start-screen { display:flex; flex-direction:column; justify-content:center; }
-            #start-screen h1 { font-size:30px; margin-bottom:8px; }
-            #start-screen p { font-size:14px; line-height:1.45; margin:0 auto 18px; }
+            #start-screen h1,#game-over-screen h1 { font-size:30px; margin-bottom:8px; }
+            #start-screen p,#game-over-screen p { font-size:14px; line-height:1.45; margin:0 auto 18px; }
             .difficulty-options { gap:8px; }
             .difficulty-button,.primary-button,.secondary-button { min-height:44px; }
             .game-header { grid-template-columns:minmax(68px,1fr) auto minmax(68px,1fr); gap:5px; align-items:center; padding:0 2px; margin-bottom:3px; }
@@ -308,6 +318,23 @@
         </div>
         <div id="difficulty-description">The AI pursues captures and useful board positions, but does not fully anticipate your reply.</div>
         <button id="start-button" class="primary-button">Start Game</button>
+    </section>
+
+    <section id="game-over-screen" aria-live="assertive">
+        <div class="game-over-kicker">Game Over</div>
+        <h1>Shapes</h1>
+        <div id="game-over-result">Player 1 wins!</div>
+        <div class="final-score-grid" aria-label="Final scores">
+            <div id="final-player-card" class="final-score-card">
+                <span class="final-score-label">Player</span>
+                <strong id="final-player-score" class="final-score-number">0</strong>
+            </div>
+            <div id="final-ai-card" class="final-score-card">
+                <span class="final-score-label">AI</span>
+                <strong id="final-ai-score" class="final-score-number">0</strong>
+            </div>
+        </div>
+        <button id="next-button" class="primary-button">Next</button>
     </section>
 
     <main id="game">
@@ -1156,13 +1183,33 @@
             if (!gameOverAnnounced) {
                 gameOverAnnounced = true;
                 refreshUI();
-                const winner = p1Score > p2Score ? 'Player 1' : p2Score > p1Score ? 'AI' : 'Neither player';
-                const result = p1Score === p2Score ? 'The game is a tie.' : `${winner} wins!`;
-                setTimeout(() => alert(`Game Over! ${result}
-Player 1: ${p1Score}
-AI: ${p2Score}`), 50);
+                showGameOverScreen();
             }
             return true;
+        }
+
+        function showGameOverScreen() {
+            const result = document.getElementById('game-over-result');
+            const playerCard = document.getElementById('final-player-card');
+            const aiCard = document.getElementById('final-ai-card');
+            document.getElementById('final-player-score').textContent = p1Score;
+            document.getElementById('final-ai-score').textContent = p2Score;
+            playerCard.classList.remove('winner');
+            aiCard.classList.remove('winner');
+
+            if (p1Score > p2Score) {
+                result.textContent = 'Player 1 wins!';
+                playerCard.classList.add('winner');
+            } else if (p2Score > p1Score) {
+                result.textContent = 'AI wins!';
+                aiCard.classList.add('winner');
+            } else {
+                result.textContent = 'The game is a tie!';
+            }
+
+            document.getElementById('game').style.display = 'none';
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('game-over-screen').style.display = 'block';
         }
 
         function startGame() {
@@ -1188,6 +1235,7 @@ AI: ${p2Score}`), 50);
             remainingDeck = dealCards();
 
             document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('game-over-screen').style.display = 'none';
             document.getElementById('game').style.display = 'block';
             document.getElementById('difficulty-label').textContent = `Difficulty: ${difficulty[0].toUpperCase() + difficulty.slice(1)}`;
             refreshUI();
@@ -1203,6 +1251,7 @@ AI: ${p2Score}`), 50);
             gameActive = false;
             gameOverAnnounced = false;
             document.getElementById('game').style.display = 'none';
+            document.getElementById('game-over-screen').style.display = 'none';
             document.getElementById('start-screen').style.display = 'block';
         }
 
@@ -1216,6 +1265,7 @@ AI: ${p2Score}`), 50);
         });
         document.getElementById('start-button').addEventListener('click', startGame);
         document.getElementById('new-game-button').addEventListener('click', showStartScreen);
+        document.getElementById('next-button').addEventListener('click', showStartScreen);
     </script>
     <script>
         if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
