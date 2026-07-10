@@ -78,8 +78,19 @@
         .primary-button:hover,.secondary-button:hover { transform:translateY(-2px); filter:brightness(1.12); }
         .secondary-button { padding:9px 14px; background:#17202c; color:#f8fafc; border:1px solid #344256; }
         #game { display:none; }
-        .game-header { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+        .game-header { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; gap:12px; }
+        .game-title-block { text-align:left; justify-self:start; }
         .game-header h1 { font-size:30px; }
+        #new-game-button { justify-self:end; }
+        .header-scores { display:flex; justify-content:center; align-items:stretch; gap:8px; }
+        .header-score {
+            min-width:82px; padding:6px 10px; border:1px solid #344256; border-radius:11px;
+            background:linear-gradient(180deg,rgba(24,33,46,.96),rgba(10,15,23,.96));
+            box-shadow:inset 0 1px rgba(255,255,255,.04),0 5px 14px rgba(0,0,0,.25);
+        }
+        .header-score-label { display:block; color:#9fb0c5; font-size:10px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
+        .header-score-number { display:block; margin-top:1px; color:#7dd3fc; font-size:24px; font-weight:950; line-height:1; text-shadow:0 0 12px rgba(56,189,248,.35); }
+        .header-score-number.score-updated { animation:scoreUpdated .72s cubic-bezier(.2,.85,.25,1); }
         #difficulty-label { color:#8fa1b8; font-size:14px; }
         #turn-indicator { margin:10px; font-weight:900; color:#fff; text-shadow:0 0 14px rgba(255,255,255,.13); }
         #action-message { color:var(--gold); min-height:22px; }
@@ -192,10 +203,8 @@
         .slot.play-target { box-shadow:0 0 0 2px rgba(125,211,252,.8),0 0 30px rgba(56,189,248,.52),inset 0 0 18px rgba(56,189,248,.16); }
         .draw-arrival { animation:drawArrival .5s cubic-bezier(.2,.9,.25,1.35); }
         @keyframes drawArrival { 0%{transform:scale(.72);filter:brightness(1.8)} 65%{transform:scale(1.12)} 100%{transform:none;filter:none} }
-        #scores { display:flex; justify-content:center; gap:30px; margin:10px; }
-        #scores p { margin:0; }
         #deck-counter,#ai-hand-counter { margin:10px; }
-        #scores strong,#ai-hand-count,#deck-count { color:#7dd3fc; text-shadow:0 0 12px rgba(56,189,248,.35); }
+        #ai-hand-count,#deck-count { color:#7dd3fc; text-shadow:0 0 12px rgba(56,189,248,.35); }
         #move-log-panel { border:1px solid #344256; border-radius:13px; background:rgba(8,12,19,.92); overflow:hidden; text-align:left; box-shadow:0 12px 35px rgba(0,0,0,.35); }
         #move-log-panel h2 { margin:0; padding:13px 15px; font-size:18px; background:linear-gradient(135deg,#1c2735,#111821); color:#f8fafc; border-bottom:1px solid #3f5066; }
         #move-log { height:472px; margin:0; padding:10px 12px 10px 36px; overflow-y:auto; font-size:13px; line-height:1.45; scrollbar-color:#52637a #101620; }
@@ -205,6 +214,7 @@
         #move-log .ai-move { color:#f5d0fe; font-weight:700; }
         #move-log .capture-entry { color:#fde68a; text-shadow:0 0 12px rgba(250,204,21,.2); }
         #move-log-empty { padding:16px; color:#7f90a7; font-size:14px; }
+        @keyframes scoreUpdated { 0%{transform:scale(1);color:#7dd3fc} 28%{transform:scale(1.48);color:#fff7b2;text-shadow:0 0 10px #fff,0 0 28px #facc15} 62%{transform:scale(1.14);color:#fef08a;text-shadow:0 0 22px rgba(250,204,21,.85)} 100%{transform:scale(1);color:#7dd3fc;text-shadow:0 0 12px rgba(56,189,248,.35)} }
         @keyframes cardLand { 0%{transform:translateY(-24px) scale(.72) rotateX(18deg);opacity:.1;filter:brightness(1.8)} 65%{transform:translateY(2px) scale(1.08)} 100%{transform:none;opacity:1} }
         @keyframes selectedPulse { 50%{box-shadow:0 16px 30px rgba(0,0,0,.6),0 0 0 2px #7dd3fc,0 0 39px rgba(56,189,248,.8)} }
         @keyframes removalPulse { 50%{filter:brightness(1.22);box-shadow:0 0 0 3px rgba(251,191,36,.88),0 0 34px rgba(245,158,11,.7)} }
@@ -232,10 +242,14 @@
             #start-screen p { font-size:14px; line-height:1.45; margin:0 auto 18px; }
             .difficulty-options { gap:8px; }
             .difficulty-button,.primary-button,.secondary-button { min-height:44px; }
-            .game-header { align-items:center; padding:0 4px; margin-bottom:2px; }
-            .game-header h1 { font-size:21px; margin:0; }
-            #difficulty-label { font-size:11px; }
-            #new-game-button { min-height:38px; padding:8px 11px; font-size:12px; }
+            .game-header { grid-template-columns:minmax(68px,1fr) auto minmax(68px,1fr); gap:5px; align-items:center; padding:0 2px; margin-bottom:3px; }
+            .game-header h1 { font-size:20px; margin:0; }
+            #difficulty-label { font-size:9px; }
+            #new-game-button { min-height:38px; padding:7px 9px; font-size:11px; }
+            .header-scores { gap:4px; }
+            .header-score { min-width:52px; padding:4px 5px; border-radius:8px; }
+            .header-score-label { font-size:8px; letter-spacing:.04em; }
+            .header-score-number { font-size:19px; }
             #turn-indicator { margin:5px 0 2px; font-size:14px; }
             #action-message { min-height:17px; margin-bottom:2px; font-size:12px; }
             .game-workspace { display:block; }
@@ -263,7 +277,6 @@
             .card-option { width:54px; height:74px; flex:0 0 auto; border-radius:7px; scroll-snap-align:center; }
             .card-option:hover { transform:none; }
             .card-option.selected { transform:translateY(-5px) scale(1.04); }
-            #scores { gap:16px; margin:3px 0; font-size:12px; }
             #deck-counter,#ai-hand-counter { margin:3px; font-size:12px; }
             #move-log-panel { margin-top:7px; border-radius:10px; }
             #move-log-panel h2 { padding:8px 11px; font-size:14px; }
@@ -299,9 +312,19 @@
 
     <main id="game">
         <div class="game-header">
-            <div style="text-align:left">
+            <div class="game-title-block">
                 <h1>Shapes</h1>
                 <div id="difficulty-label"></div>
+            </div>
+            <div class="header-scores" aria-label="Current scores">
+                <div class="header-score">
+                    <span class="header-score-label">Player</span>
+                    <strong id="p1-score" class="header-score-number" aria-live="polite">0</strong>
+                </div>
+                <div class="header-score">
+                    <span class="header-score-label">AI</span>
+                    <strong id="p2-score" class="header-score-number" aria-live="polite">0</strong>
+                </div>
             </div>
             <button id="new-game-button" class="secondary-button">New Game</button>
         </div>
@@ -326,10 +349,6 @@
                 <div id="player1-hand" class="hand-zone">
                     <div class="hand-label">Player 1 Hand</div>
                     <span class="hand"></span>
-                </div>
-                <div id="scores">
-                    <p>Player 1 Score: <strong id="p1-score">0</strong></p>
-                    <p>AI Score: <strong id="p2-score">0</strong></p>
                 </div>
             </section>
             <aside id="move-log-panel" aria-label="Move history">
@@ -1058,8 +1077,20 @@
         }
 
         function updateScores() {
-            document.getElementById('p1-score').textContent = p1Score;
-            document.getElementById('p2-score').textContent = p2Score;
+            updateScoreDisplay('p1-score', p1Score);
+            updateScoreDisplay('p2-score', p2Score);
+        }
+
+        function updateScoreDisplay(elementId, score) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            const previousScore = Number(element.textContent);
+            element.textContent = score;
+            if (Number.isFinite(previousScore) && score !== previousScore) {
+                element.classList.remove('score-updated');
+                void element.offsetWidth;
+                element.classList.add('score-updated');
+            }
         }
 
         function updateTurnIndicator() {

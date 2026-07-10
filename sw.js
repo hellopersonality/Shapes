@@ -1,4 +1,4 @@
-const CACHE_NAME = 'shapes-v4';
+const CACHE_NAME = 'shapes-v5';
 const APP_SHELL = [
   './',
   './index.html',
