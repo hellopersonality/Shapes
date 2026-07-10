@@ -6,10 +6,10 @@
     <meta name="theme-color" content="#05070b">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Shape Siege">
+    <meta name="apple-mobile-web-app-title" content="Shapes">
     <link rel="apple-touch-icon" href="./icon-180.png">
     <link rel="manifest" href="./manifest.webmanifest">
-    <title>Shape Siege</title>
+    <title>Shapes</title>
     <style>
         :root {
             --card-w: 66px;
@@ -225,7 +225,7 @@
             #ai-hand { min-height:61px; }
             #ai-hand > span { min-height:54px; gap:2px; flex-wrap:nowrap; overflow-x:auto; justify-content:center; padding:0 4px 3px; scrollbar-width:none; }
             #ai-hand > span::-webkit-scrollbar,.hand > span::-webkit-scrollbar { display:none; }
-            .ai-card-back { width:37px; height:50px; border-radius:5px; flex:0 0 auto; margin-left:-4px; }
+            .ai-card-back { width:39px; height:53px; border-radius:5px; flex:0 0 auto; margin-left:-4px; }
             .ai-card-back:first-child { margin-left:0; }
             .table-zone { display:flex; flex-direction:column; gap:4px; width:100%; margin:0 auto; align-items:center; }
             #deck-area { order:2; flex-direction:row; gap:7px; height:41px; margin-top:1px; }
@@ -234,13 +234,13 @@
             .deck-layer { border-radius:4px; }
             .deck-badge { font-size:10px; min-width:23px; padding:2px 6px; }
             #board { order:1; gap:2px; margin:0 auto; }
-            :root { --card-w:40px; --card-h:55px; --card-radius:5px; }
+            :root { --card-w:43px; --card-h:59px; --card-radius:6px; }
             .slot { border-width:1px; }
             .tile-label { font-size:6px; top:1px; left:1px; padding:1px 2px; min-width:14px; border-radius:3px; }
             .stack-count { top:1px; right:1px; min-width:17px; height:15px; font-size:8px; padding:0 2px; }
             #player1-hand { margin:4px 0 2px; min-height:75px; }
-            #player1-hand > span { display:flex; flex-wrap:nowrap; overflow-x:auto; justify-content:flex-start; width:100%; padding:7px 8px 10px; box-sizing:border-box; gap:6px; scroll-snap-type:x proximity; scrollbar-width:none; }
-            .card-option { width:47px; height:64px; flex:0 0 auto; border-radius:6px; scroll-snap-align:center; }
+            #player1-hand > span { display:flex; flex-wrap:nowrap; overflow-x:auto; justify-content:center; align-items:center; width:100%; padding:8px 8px 11px; box-sizing:border-box; gap:6px; scroll-snap-type:x proximity; scrollbar-width:none; }
+            .card-option { width:54px; height:74px; flex:0 0 auto; border-radius:7px; scroll-snap-align:center; }
             .card-option:hover { transform:none; }
             .card-option.selected { transform:translateY(-5px) scale(1.04); }
             #scores { gap:16px; margin:3px 0; font-size:12px; }
@@ -253,10 +253,10 @@
             .draw-flyer,.play-flyer { border-radius:6px; }
         }
         @media (max-width:360px) {
-            :root { --card-w:37px; --card-h:50px; }
+            :root { --card-w:40px; --card-h:55px; }
             #board { gap:2px; }
-            .card-option { width:43px; height:59px; }
-            .ai-card-back { width:34px; height:46px; }
+            .card-option { width:49px; height:67px; }
+            .ai-card-back { width:36px; height:49px; }
             #move-log { height:112px; }
         }
 
@@ -265,7 +265,7 @@
 </head>
 <body>
     <section id="start-screen">
-        <h1>Shape Siege</h1>
+        <h1>Shapes</h1>
         <p>Surround and capture valuable stacks. Choose how strategically the AI opponent will play.</p>
 
         <div class="difficulty-options" aria-label="Select difficulty">
@@ -280,7 +280,7 @@
     <main id="game">
         <div class="game-header">
             <div style="text-align:left">
-                <h1>Shape Siege</h1>
+                <h1>Shapes</h1>
                 <div id="difficulty-label"></div>
             </div>
             <button id="new-game-button" class="secondary-button">New Game</button>

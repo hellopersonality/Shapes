@@ -1,4 +1,4 @@
-const CACHE_NAME = 'shape-siege-v2';
+const CACHE_NAME = 'shapes-v3';
 const APP_SHELL = [
   './',
   './index.html',
